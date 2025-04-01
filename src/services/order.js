@@ -17,7 +17,8 @@ const getAllOrders = async (req, res) => {
                     where: {
                         isDeleted: false
                     }
-                }
+                },
+                partner: true
             }
         })
         for (const order of orders) {
