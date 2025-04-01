@@ -90,6 +90,7 @@ model OrderItem {
   totalBuyPrice  Float
   totalSellPrice Float
   image          String?
+  name           String
 
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)

@@ -143,6 +143,7 @@ const createOrder = async (req, res) => {
             const totalSellPrice = sellPrice * Number(item.quantity)
             const image = checkProducts.find(product => product.id === item.productId).image || null
             const unit = checkProducts.find(product => product.id === item.productId).unit || "pcs"
+            const name = checkProducts.find(product => product.id === item.productId).name || "Produk Tidak Ditemukan"
             totalBuyPriceOrder += totalBuyPrice
             totalSellPriceOrder += totalSellPrice
             return {
@@ -151,7 +152,8 @@ const createOrder = async (req, res) => {
                 totalBuyPrice,
                 totalSellPrice,
                 image,
-                unit
+                unit,
+                name
             }
         })
 
