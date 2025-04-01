@@ -1,0 +1,103 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String  @id @default(uuid())
+  name        String
+  email       String  @unique
+  countryCode String
+  phone       String
+  password    String
+  address     String  @db.Text()
+  role        Role
+  image       String?
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum Role {
+  Admin
+  Employee
+}
+
+model Product {
+  id        String  @id @default(uuid())
+  name      String
+  unit      String
+  buyPrice  Float
+  sellPrice Float
+  image     String?
+
+  orderItems OrderItem[]
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Partner {
+  id          String  @id @default(uuid())
+  name        String
+  pic         String
+  countryCode String
+  phone       String
+  address     String  @db.Text()
+  image       String?
+
+  orders Order[]
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Order {
+  id             String    @id @default(uuid())
+  totalBuyPrice  Float
+  totalSellPrice Float
+  date           DateTime
+  note           String?   @db.Text()
+  startedAt      DateTime?
+  finishedAt     DateTime?
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  isDeleted Boolean @default(false)
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model OrderItem {
+  id             String  @id @default(uuid())
+  quantity       Int
+  unit           String
+  totalBuyPrice  Float
+  totalSellPrice Float
+  image          String?
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
