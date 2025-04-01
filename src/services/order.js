@@ -99,7 +99,7 @@ const createOrder = async (req, res) => {
         if (invalidKeys.length > 0) {
             invalidKeys.forEach(key => delete item[key]);
         }
-        if (!item.productId || !item.quantity) {
+        if (!item.productId || !item.quantity || isNaN(Number(item.quantity))) {
             return res.status(400).json({ status: 400, message: 'Format pesanan tidak valid' })
         }
         productIds.push(item.productId)
@@ -147,7 +147,7 @@ const createOrder = async (req, res) => {
             totalSellPriceOrder += totalSellPrice
             return {
                 productId: item.productId,
-                quantity: item.quantity,
+                quantity: Number(item.quantity),
                 totalBuyPrice,
                 totalSellPrice,
                 image,
