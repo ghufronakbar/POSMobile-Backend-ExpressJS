@@ -4,6 +4,7 @@ import { sendEmail } from '../utils/node-mailer/send-email.js';
 import verification from '../middleware/verification.js';
 import randomCharacter from '../utils/randomCharacter.js';
 import bcrypt from 'bcryptjs'
+import validateEmail from '../utils/validateEmail.js';
 const router = express.Router()
 
 const getAllUsers = async (req, res) => {
