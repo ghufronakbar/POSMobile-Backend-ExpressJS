@@ -119,7 +119,7 @@ const createUser = async (req, res) => {
             }
         })
 
-        return res.status(200).json({ message: "Berhasil membuat akun!", data: user })
+        return res.status(200).json({ message: "Berhasil membuat akun, harap cek email!", data: user })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: 'Terjadi Kesalahan Sistem!' })
@@ -149,19 +149,13 @@ const editUser = async (req, res) => {
         if (checkEmail && checkEmail.id !== id) {
             return res.status(400).json({ status: 400, message: "Email sudah terdaftar" })
         }
-        const password = randomCharacter(8)
-        const hashedPassword = await bcrypt.hash(password, 10)
-        const send = await sendEmail(email, "CREATE_ACCOUNT", name, password)
-        if (send instanceof Error) {
-            return res.status(500).json({ status: 500, message: 'Gagal mengirim email' })
-        }
+
         const user = await prisma.user.update({
             data: {
                 address,
                 countryCode,
                 email,
                 name,
-                password: hashedPassword,
                 phone,
                 role,
                 image: image || null
@@ -171,7 +165,7 @@ const editUser = async (req, res) => {
             ]
         })
 
-        return res.status(200).json({ message: "Berhasil membuat akun!", data: user })
+        return res.status(200).json({ message: "Berhasil mengedit akun!", data: user })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: 'Terjadi Kesalahan Sistem!' })
