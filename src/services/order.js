@@ -188,8 +188,52 @@ const createOrder = async (req, res) => {
     }
 }
 
+const trackOrder = async (req, res) => {
+    const { id } = req.params
+    try {
+        const check = await prisma.order.findUnique({
+            where: {
+                id
+            }
+        })
+        if (!check || check.isDeleted) {
+            return res.status(404).json({ status: 404, message: 'Pesanan tidak ditemukan' })
+        }
+
+        if (check.finishedAt) {
+            return res.status(400).json({ status: 400, message: 'Pesanan sudah selesai' })
+        }
+
+        if (!check.startedAt) {
+            const order = await prisma.order.update({
+                where: {
+                    id
+                },
+                data: {
+                    startedAt: new Date()
+                }
+            })
+            return res.status(200).json({ status: 200, message: 'Berhasil memulai pesanan!', data: order })
+        } else {
+            const order = await prisma.order.update({
+                where: {
+                    id
+                },
+                data: {
+                    finishedAt: new Date()
+                }
+            })
+            return res.status(200).json({ status: 200, message: 'Berhasil menyelesaikan pesanan!', data: order })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ status: 500, message: 'Terjadi Kesalahan Sistem!' })
+    }
+}
+
 router.get("/", verification(["Admin", "Employee"]), getAllOrders)
 router.get("/:id", verification(["Admin", "Employee"]), getOrder)
 router.post("/", verification(["Admin", "Employee"]), createOrder)
+router.post("/:id/track", verification(["Admin", "Employee"]), trackOrder)
 
 export default router
