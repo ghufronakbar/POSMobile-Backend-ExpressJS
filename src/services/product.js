@@ -56,7 +56,7 @@ const createProduct = async (req, res) => {
                 buyPrice: Number(buyPrice),
                 sellPrice: Number(sellPrice),
                 unit,
-                image: image | null,
+                image: image || null,
             }
         })
         return res.status(200).json({ status: 200, message: 'Berhasil menambahkan produk!', data: product })
@@ -85,7 +85,7 @@ const editProduct = async (req, res) => {
                 buyPrice: Number(buyPrice),
                 sellPrice: Number(sellPrice),
                 unit,
-                image: image | null,
+                image: image || null,
             }
         })
         return res.status(200).json({ status: 200, message: 'Berhasil mengubah produk!', data: product })
