@@ -6,9 +6,6 @@ import verification from '../middleware/verification.js'
 const getAllOrders = async (req, res) => {
     try {
         const orders = await prisma.order.findMany({
-            where: {
-                isDeleted: false
-            },
             orderBy: {
                 createdAt: "desc"
             },
@@ -28,6 +25,9 @@ const getAllOrders = async (req, res) => {
                 order.status = "Dalam Proses"
             } else {
                 order.status = "Mendatang"
+            }
+            if (order.isDeleted) {
+                order.status = "Dibatalkan"
             }
         }
         return res.status(200).json({ status: 200, message: "Success", data: orders })
@@ -57,8 +57,20 @@ const getOrder = async (req, res) => {
             }
         })
 
-        if (!order || order.isDeleted) {
+        if (!order) {
             return res.status(404).json({ status: 404, message: "Pesanan tidak ditemukan!" })
+        }
+
+        if (order.finishedAt) {
+            order.status = "Selesai"
+        } else if (order.startedAt) {
+            order.status = "Dalam Proses"
+        } else {
+            order.status = "Mendatang"
+        }
+
+        if (order.isDeleted) {
+            order.status = "Dibatalkan"
         }
 
         return res.status(200).json({ status: 200, message: "Success", data: order })
