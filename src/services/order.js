@@ -10,11 +10,7 @@ const getAllOrders = async (req, res) => {
                 createdAt: "desc"
             },
             include: {
-                orderItems: {
-                    where: {
-                        isDeleted: false
-                    }
-                },
+                orderItems: true,
                 partner: true
             }
         })
@@ -237,6 +233,39 @@ const trackOrder = async (req, res) => {
             })
             return res.status(200).json({ status: 200, message: 'Berhasil menyelesaikan pesanan!', data: order })
         }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ status: 500, message: 'Terjadi Kesalahan Sistem!' })
+    }
+}
+
+const deleteOrder = async (req, res) => {
+    const { id } = req.params
+    try {
+        const check = await prisma.order.findUnique({
+            where: {
+                id
+            }
+        })
+        if (!check) {
+            return res.status(404).json({ status: 404, message: 'Pesanan tidak ditemukan' })
+        }
+        const order = await prisma.order.update({
+            where: {
+                id
+            },
+            data: {
+                isDeleted: true,
+                orderItems: {
+                    updateMany: {
+                        data: {
+                            isDeleted: true
+                        },
+                    }
+                }
+            }
+        })
+        return res.status(200).json({ status: 200, message: 'Berhasil membatalkan pesanan!', data: order })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: 'Terjadi Kesalahan Sistem!' })
