@@ -56,7 +56,7 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ status: 404, message: "Pengguna tidak ditemukan" })
         }
 
-        const send = await sendEmail(email, "DELETE_ACCOUNT", user.name)
+        const send = await sendEmail(user.email, "DELETE_ACCOUNT", user.name)
 
         if (send instanceof Error) {
             return res.status(500).json({ status: 500, message: "Gagal mengirim email" })
