@@ -275,6 +275,7 @@ const deleteOrder = async (req, res) => {
 router.get("/", verification(["Admin", "Employee"]), getAllOrders)
 router.get("/:id", verification(["Admin", "Employee"]), getOrder)
 router.post("/", verification(["Admin", "Employee"]), createOrder)
+router.delete("/:id", verification(["Admin", "Employee"]), deleteOrder)
 router.post("/:id/track", verification(["Admin", "Employee"]), trackOrder)
 
 export default router
