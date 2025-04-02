@@ -28,7 +28,7 @@ const login = async (req, res) => {
         if (!check) {
             return res.status(400).json({ status: 400, message: 'Password salah' })
         }
-        const accessToken = jwt.sign({ id: user.userId, role: user.role }, JWT_SECRET)
+        const accessToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET)
         return res.status(200).json({ status: 200, message: 'Login berhasil', data: { ...user, accessToken, role: user.role } })
     } catch (error) {
         console.log(error)
