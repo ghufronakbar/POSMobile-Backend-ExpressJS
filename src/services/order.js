@@ -255,14 +255,7 @@ const deleteOrder = async (req, res) => {
                 id
             },
             data: {
-                isDeleted: true,
-                orderItems: {
-                    updateMany: {
-                        data: {
-                            isDeleted: true
-                        },
-                    }
-                }
+                isDeleted: true,                
             }
         })
         return res.status(200).json({ status: 200, message: 'Berhasil membatalkan pesanan!', data: order })
