@@ -319,6 +319,7 @@ const partnerOverview = async (req, res) => {
                 isDeleted: false
             },
             select: {
+                name: true,
                 orders: {
                     select: {
                         orderItems: {
