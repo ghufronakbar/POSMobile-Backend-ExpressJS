@@ -6,7 +6,9 @@ import products from '../services/product.js';
 import image from '../services/image.js'
 import order from '../services/order.js';
 import partner from '../services/partner.js'
+import dashboard from '../services/dashboard.js'
 
+router.use('/dashboard', dashboard)
 router.use('/account', account);
 router.use('/users', user);
 router.use('/products', products);
