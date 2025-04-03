@@ -274,6 +274,8 @@ const countProductSold = async (req, res) => {
             }
         }
 
+        data.sort((a, b) => b.quantity - a.quantity)
+
 
         return res.status(200).json({ status: 200, message: "OK", data })
     } catch (error) {
