@@ -166,7 +166,7 @@ const chartProduct = async (req, res) => {
             }
         }
 
-        return res.status(200).json({ status: 200, message: "OK", data })
+        return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys: uniqueKeys } })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: "Terjadi Kesalahan Sistem!" })
@@ -240,7 +240,7 @@ const chartIncome = async (req, res) => {
             item.total = total
         }
 
-        return res.status(200).json({ status: 200, message: "OK", data })
+        return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys: uniqueKeys } })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: "Terjadi Kesalahan Sistem!" })
