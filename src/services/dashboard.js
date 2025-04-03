@@ -9,50 +9,52 @@ const overview = async (req, res) => {
         const now = new Date()
         now.setHours(0, 0, 0, 0)
         const endDay = new Date(now.getTime() + 86400000)
-        const countOrder = await prisma.order.count({
-            where: {
-                AND: [
-                    {
-                        isDeleted: false
-                    },
-                    {
-                        date: {
-                            gte: now,
-                            lte: endDay,
+        const [countOrder, orders] = await Promise.all([
+            prisma.order.count({
+                where: {
+                    AND: [
+                        {
+                            isDeleted: false
+                        },
+                        {
+                            date: {
+                                gte: now,
+                                lte: endDay,
+                            }
+                        },
+                        {
+                            startedAt: null
                         }
-                    },
-                    {
-                        startedAt: null
+                    ]
+                }
+            }),
+            prisma.order.findMany({
+                where: {
+                    AND: [
+                        {
+                            isDeleted: false
+                        },
+                        {
+                            finishedAt: {
+                                not: null
+                            }
+                        }
+                    ]
+                },
+                select: {
+                    totalSellPrice: true,
+                    totalBuyPrice: true,
+                    orderItems: {
+                        select: {
+                            quantity: true
+                        }
                     }
-                ]
-            }
-        })
+                }
+            })
+        ])
 
         const message = countOrder === 0 ? "Tidak ada pesanan untuk hari ini" : "Harus segera dikirim hari ini!"
 
-        const orders = await prisma.order.findMany({
-            where: {
-                AND: [
-                    {
-                        isDeleted: false
-                    },
-                    {
-                        finishedAt: {
-                            not: null
-                        }
-                    }
-                ]
-            },
-            select: {
-                totalSellPrice: true,
-                totalBuyPrice: true,
-                orderItems: {
-                    select: {
-                        quantity: true
-                    }
-                }
-            }
-        })
 
         let totalIncome = 0
         let totalProfit = 0
