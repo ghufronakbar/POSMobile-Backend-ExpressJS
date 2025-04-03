@@ -257,7 +257,8 @@ const countProductSold = async (req, res) => {
             },
             select: {
                 quantity: true,
-                name: true
+                name: true,
+                totalSellPrice: true
             }
         })
 
@@ -267,8 +268,9 @@ const countProductSold = async (req, res) => {
             const index = data.findIndex(item => item.name === orderItem.name)
             if (index !== -1) {
                 data[index].quantity += orderItem.quantity
+                data[index].totalSellPrice += orderItem.totalSellPrice
             } else {
-                data.push({ name: orderItem.name, quantity: orderItem.quantity })
+                data.push({ name: orderItem.name, quantity: orderItem.quantity, totalSellPrice: orderItem.totalSellPrice })
             }
         }
 
