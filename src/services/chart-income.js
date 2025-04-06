@@ -27,7 +27,8 @@ export const chartIncomeAnnual = async (req, res) => {
             select: {
                 name: true,
                 totalSellPrice: true,
-                createdAt: true
+                createdAt: true,
+                totalBuyPrice: true
             }
         })
 
@@ -88,8 +89,11 @@ export const chartIncomeAnnual = async (req, res) => {
             }
         })
 
+        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+
         const master = {
-            total: keys.reduce((total, item) => total + item.total, 0)
+            total: keys.reduce((total, item) => total + item.total, 0),
+            profit
         }
 
         return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys, master } })
@@ -134,7 +138,8 @@ export const chartIncomeMonth = async (req, res) => {
             select: {
                 name: true,
                 totalSellPrice: true,
-                createdAt: true
+                createdAt: true,
+                totalBuyPrice: true
             }
         })
 
@@ -188,8 +193,11 @@ export const chartIncomeMonth = async (req, res) => {
             }
         })
 
+        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+
         const master = {
-            total: keys.reduce((total, item) => total + item.total, 0)
+            total: keys.reduce((total, item) => total + item.total, 0),
+            profit
         }
 
         return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys, master } })
@@ -236,7 +244,8 @@ export const chartIncomeWeek = async (req, res) => {
             select: {
                 name: true,
                 totalSellPrice: true,
-                createdAt: true
+                createdAt: true,
+                totalBuyPrice: true
             }
         })
 
@@ -247,7 +256,7 @@ export const chartIncomeWeek = async (req, res) => {
             const index = listDate.indexOf(keyDate)
             if (index !== -1) {
                 if (data[index][orderItem.name] === undefined) data[index][orderItem.name] = 0
-                data[index][orderItem.name] += orderItem.totalSellPrice                
+                data[index][orderItem.name] += orderItem.totalSellPrice
             }
         }
 
@@ -290,8 +299,11 @@ export const chartIncomeWeek = async (req, res) => {
             }
         })
 
+        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+
         const master = {
-            total: keys.reduce((total, item) => total + item.total, 0)
+            total: keys.reduce((total, item) => total + item.total, 0),
+            profit
         }
 
         return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys, master } })

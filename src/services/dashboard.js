@@ -182,18 +182,58 @@ const mostSoldProducts = async (req, res) => {
 }
 
 const partnerOverview = async (req, res) => {
+
+    const { type } = req.query
+    const now = new Date()
+    const twelveMonthsAgo = new Date(now.getFullYear() - 1, now.getMonth(), 1)
+    const curStartMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    const date = type === "weekly" ? sevenDaysAgo : type === "monthly" ? curStartMonth : twelveMonthsAgo
+
     try {
         const partners = await prisma.partner.findMany({
             where: {
-                isDeleted: false
+                AND: [
+                    {
+                        isDeleted: false
+                    },
+                    {
+                        createdAt: {
+                            gte: date
+                        }
+                    }
+                ]
             },
             select: {
                 name: true,
-                orders: {
+            }
+        })
+
+        const orderItems = await prisma.orderItem.findMany({
+            where: {
+                order: {
+                    AND: [
+                        {
+                            isDeleted: false
+                        },
+                        {
+                            createdAt: {
+                                gte: date
+                            }
+                        }
+                    ]
+                }
+            },
+            select: {
+                quantity: true,
+                totalSellPrice: true,
+                totalBuyPrice: true,
+                order: {
                     select: {
-                        orderItems: {
+                        partner: {
                             select: {
-                                quantity: true
+                                name: true
                             }
                         }
                     }
@@ -204,14 +244,22 @@ const partnerOverview = async (req, res) => {
         const totalPartners = partners.length
         const mappedPartners = []
         for (const partner of partners) {
-            const totalQuantity = partner.orders.reduce((acc, order) => acc + order.orderItems.reduce((acc, orderItem) => acc + orderItem.quantity, 0), 0)
-            mappedPartners.push({ name: partner.name, totalQuantity })
+            const totalQuantity = orderItems.filter((orderItem) => orderItem.order.partner.name === partner.name).reduce((acc, item) => acc + item.quantity, 0)
+            const totalSellPrice = orderItems.filter((orderItem) => orderItem.order.partner.name === partner.name).reduce((acc, item) => acc + item.totalSellPrice, 0)
+            const totalBuyPrice = orderItems.filter((orderItem) => orderItem.order.partner.name === partner.name).reduce((acc, item) => acc + item.totalBuyPrice, 0)
+            mappedPartners.push({ name: partner.name, totalQuantity, totalSellPrice, totalBuyPrice })
         }
         mappedPartners.sort((a, b) => b.totalQuantity - a.totalQuantity).filter((item) => item.totalQuantity !== 0).slice(0, 5)
 
+        const totalSellPrice = orderItems.reduce((acc, item) => acc + item.totalSellPrice, 0)
+        const totalBuyPrice = orderItems.reduce((acc, item) => acc + item.totalBuyPrice, 0)
+        const totalQuantity = orderItems.reduce((acc, item) => acc + item.quantity, 0)
+
+        const averageTransactionValue = (totalSellPrice - totalBuyPrice) / totalQuantity
         const data = {
             totalPartners,
-            topPartners: mappedPartners
+            topPartners: mappedPartners,
+            averageTransactionValue
         }
 
         return res.status(200).json({ status: 200, message: "OK", data })

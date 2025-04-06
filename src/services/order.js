@@ -86,9 +86,9 @@ const createOrder = async (req, res) => {
         return res.status(400).json({ status: 400, message: 'Tanggal tidak valid' });
     }
 
-    if (new Date(date) < new Date()) {
-        return res.status(400).json({ status: 400, message: 'Tanggal tidak boleh kurang dari hari ini' });
-    }
+    // if (new Date(date) < new Date()) {
+    //     return res.status(400).json({ status: 400, message: 'Tanggal tidak boleh kurang dari hari ini' });
+    // }
 
     if (typeof orderItems !== "object") {
         return res.status(400).json({ status: 400, message: 'Format pesanan tidak valid' })
