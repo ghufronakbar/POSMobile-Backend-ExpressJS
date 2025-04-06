@@ -1,8 +1,8 @@
 import express from 'express'
 import prisma from '../db/prisma.js'
 const router = express.Router()
-import verification from '../middleware/verification.js'
-import formatDate from '../utils/format/formatDate.js'
+import { chartProductAnnual, chartProductMonth, chartProductWeek } from './chart-product.js'
+import { chartIncomeAnnual, chartIncomeMonth, chartIncomeWeek } from './chart-income.js'
 
 const overview = async (req, res) => {
     try {
@@ -109,143 +109,7 @@ const overview = async (req, res) => {
     }
 }
 
-const chartProduct = async (req, res) => {
-    try {
-        const now = new Date()
-        const listMonth = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-        ];
-        const orderItems = await prisma.orderItem.findMany({
-            where: {
-                order: {
-                    isDeleted: false
-                }
-            },
-            select: {
-                name: true,
-                quantity: true,
-                createdAt: true
-            }
-        })
 
-        const currentMonth = formatDate(now, true)
-        const currentIndex = listMonth.indexOf(currentMonth);
-
-        const sortedListMonth = listMonth
-            .slice(currentIndex)
-            .concat(listMonth.slice(0, currentIndex));
-
-        const data = sortedListMonth.map((item) => ({ month: item }))
-
-        for (const orderItem of orderItems) {
-            const monthName = formatDate(orderItem.createdAt, true)
-            const index = sortedListMonth.indexOf(monthName)
-            if (index !== -1) {
-                data[index][orderItem.name] = orderItem.quantity
-            }
-        }
-
-        const uniqueKeys = []
-
-        for (const item of data) {
-            const keys = Object.keys(item)
-            for (const key of keys) {
-                if (!uniqueKeys.includes(key) && key !== "month") {
-                    uniqueKeys.push(key)
-                }
-            }
-        }
-
-        for (const item of data) {
-            const keys = Object.keys(item).filter(key => key !== "month")
-            for (const key of uniqueKeys) {
-                if (!keys.includes(key)) {
-                    item[key] = 0
-                }
-            }
-        }
-
-        return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys: uniqueKeys } })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ status: 500, message: "Terjadi Kesalahan Sistem!" })
-    }
-}
-
-const chartIncome = async (req, res) => {
-    try {
-        const now = new Date()
-        const listMonth = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-        ];
-        const orderItems = await prisma.orderItem.findMany({
-            where: {
-                order: {
-                    isDeleted: false
-                }
-            },
-            select: {
-                name: true,
-                totalSellPrice: true,
-                createdAt: true
-            }
-        })
-
-        const currentMonth = formatDate(now, true)
-        const currentIndex = listMonth.indexOf(currentMonth);
-
-        const sortedListMonth = listMonth
-            .slice(currentIndex)
-            .concat(listMonth.slice(0, currentIndex));
-
-        const data = sortedListMonth.map((item) => ({ month: item }))
-
-        for (const orderItem of orderItems) {
-            const monthName = formatDate(orderItem.createdAt, true)
-            const index = sortedListMonth.indexOf(monthName)
-            if (index !== -1) {
-                data[index][orderItem.name] = orderItem.totalSellPrice
-            }
-        }
-
-        const uniqueKeys = []
-
-        for (const item of data) {
-            const keys = Object.keys(item)
-            for (const key of keys) {
-                if (!uniqueKeys.includes(key) && key !== "month") {
-                    uniqueKeys.push(key)
-                }
-            }
-        }
-
-        for (const item of data) {
-            const keys = Object.keys(item).filter(key => key !== "month")
-            for (const key of uniqueKeys) {
-                if (!keys.includes(key)) {
-                    item[key] = 0
-                }
-            }
-        }
-
-        for (const item of data) {
-            let total = 0
-            Object.keys(item).forEach(key => {
-                if (key !== "month") {
-                    total += item[key]
-                }
-            })
-            item.total = total
-        }
-
-        return res.status(200).json({ status: 200, message: "OK", data: { chart: data, keys: uniqueKeys } })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ status: 500, message: "Terjadi Kesalahan Sistem!" })
-    }
-}
 
 const countProductSold = async (req, res) => {
     try {
@@ -275,7 +139,6 @@ const countProductSold = async (req, res) => {
         }
 
         data.sort((a, b) => b.quantity - a.quantity)
-
 
         return res.status(200).json({ status: 200, message: "OK", data })
     } catch (error) {
@@ -355,6 +218,30 @@ const partnerOverview = async (req, res) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({ status: 500, message: "Terjadi Kesalahan Sistem!" })
+    }
+}
+
+const chartProduct = async (req, res) => {
+    const { type } = req.query
+
+    if (type === 'weekly') {
+        return await chartProductWeek(req, res)
+    } else if (type === 'monthly') {
+        return await chartProductMonth(req, res)
+    } else {
+        return await chartProductAnnual(req, res)
+    }
+}
+
+const chartIncome = async (req, res) => {
+    const { type } = req.query
+
+    if (type === 'weekly') {
+        return await chartIncomeWeek(req, res)
+    } else if (type === 'monthly') {
+        return await chartIncomeMonth(req, res)
+    } else {
+        return await chartIncomeAnnual(req, res)
     }
 }
 
