@@ -89,10 +89,14 @@ export const chartIncomeAnnual = async (req, res) => {
             }
         })
 
-        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+        const totalBuyPrice = orderItems.reduce((total, item) => total + item.totalBuyPrice, 0)
+        const totalSellPrice = orderItems.reduce((total, item) => total + item.totalSellPrice, 0)
+        const profit = totalSellPrice - totalBuyPrice
 
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0),
+            totalBuyPrice,
+            totalSellPrice,
             profit
         }
 
@@ -193,10 +197,14 @@ export const chartIncomeMonth = async (req, res) => {
             }
         })
 
-        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+        const totalBuyPrice = orderItems.reduce((total, item) => total + item.totalBuyPrice, 0)
+        const totalSellPrice = orderItems.reduce((total, item) => total + item.totalSellPrice, 0)
+        const profit = totalSellPrice - totalBuyPrice
 
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0),
+            totalBuyPrice,
+            totalSellPrice,
             profit
         }
 
@@ -299,10 +307,14 @@ export const chartIncomeWeek = async (req, res) => {
             }
         })
 
-        const profit = orderItems.reduce((total, item) => total + item.totalSellPrice - item.totalBuyPrice, 0)
+        const totalBuyPrice = orderItems.reduce((total, item) => total + item.totalBuyPrice, 0)
+        const totalSellPrice = orderItems.reduce((total, item) => total + item.totalSellPrice, 0)
+        const profit = totalSellPrice - totalBuyPrice
 
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0),
+            totalBuyPrice,
+            totalSellPrice,
             profit
         }
 
