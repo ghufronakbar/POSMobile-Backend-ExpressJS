@@ -9,7 +9,7 @@ const overview = async (req, res) => {
         const now = new Date()
         now.setHours(0, 0, 0, 0)
         const endDay = new Date(now.getTime() + 86400000)
-        const [countOrder, orders] = await Promise.all([
+        const [countOrder, orders, orderItems] = await Promise.all([
             prisma.order.count({
                 where: {
                     AND: [
@@ -50,6 +50,26 @@ const overview = async (req, res) => {
                         }
                     }
                 }
+            }),
+            prisma.orderItem.findMany({
+                where: {
+                    order: {
+                        AND: [
+                            {
+                                isDeleted: false
+
+                            },
+                            {
+                                finishedAt: {
+                                    not: null
+                                }
+                            }
+                        ]
+                    }
+                },
+                select: {
+                    quantity: true,
+                }
             })
         ])
 
@@ -69,17 +89,6 @@ const overview = async (req, res) => {
         }
 
         averageTransactionValue = Number(totalProfit) / Number(totalItem) || 0
-
-        const orderItems = await prisma.orderItem.findMany({
-            where: {
-                order: {
-                    isDeleted: false
-                }
-            },
-            select: {
-                quantity: true,
-            }
-        })
 
         let totalOrderItem = 0
 
