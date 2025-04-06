@@ -259,7 +259,12 @@ const partnerOverview = async (req, res) => {
         const data = {
             totalPartners,
             topPartners: mappedPartners,
-            averageTransactionValue
+            transaction: {
+                averageTransactionValue,
+                totalBuyPrice,
+                totalSellPrice,
+                totalQuantity
+            }
         }
 
         return res.status(200).json({ status: 200, message: "OK", data })
