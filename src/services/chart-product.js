@@ -261,6 +261,8 @@ export const chartProductWeek = async (req, res) => {
             }
         })
 
+        keys.sort((a, b) => b.total - a.total)
+
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0)
         }
