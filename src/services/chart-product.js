@@ -78,6 +78,8 @@ export const chartProductAnnual = async (req, res) => {
             }
         })
 
+        keys.sort((a, b) => b.total - a.total)
+
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0)
         }
@@ -168,6 +170,8 @@ export const chartProductMonth = async (req, res) => {
                 total: total
             }
         })
+
+        keys.sort((a, b) => b.total - a.total)
 
         const master = {
             total: keys.reduce((total, item) => total + item.total, 0)
