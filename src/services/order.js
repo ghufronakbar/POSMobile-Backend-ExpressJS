@@ -12,6 +12,9 @@ const getAllOrders = async (req, res) => {
             include: {
                 orderItems: true,
                 partner: true
+            },
+            where: {
+                isDeleted: false
             }
         })
         for (const order of orders) {
@@ -22,7 +25,7 @@ const getAllOrders = async (req, res) => {
             } else {
                 order.status = "Mendatang"
             }
-            if (order.isDeleted) {
+            if (order.cancelledAt) {
                 order.status = "Dibatalkan"
             }
         }
@@ -65,7 +68,7 @@ const getOrder = async (req, res) => {
             order.status = "Mendatang"
         }
 
-        if (order.isDeleted) {
+        if (order.cancelledAt) {
             order.status = "Dibatalkan"
         }
 
@@ -85,10 +88,6 @@ const createOrder = async (req, res) => {
     if (isNaN(parsedDate)) {
         return res.status(400).json({ status: 400, message: 'Tanggal tidak valid' });
     }
-
-    // if (new Date(date) < new Date()) {
-    //     return res.status(400).json({ status: 400, message: 'Tanggal tidak boleh kurang dari hari ini' });
-    // }
 
     if (typeof orderItems !== "object") {
         return res.status(400).json({ status: 400, message: 'Format pesanan tidak valid' })
@@ -135,7 +134,7 @@ const createOrder = async (req, res) => {
             })
         ])
         if (!checkPartner || checkPartner.isDeleted) {
-            return res.status(400).json({ status: 400, message: 'Partner tidak ditemukan' })
+            return res.status(400).json({ status: 400, message: 'Mitra tidak ditemukan' })
         }
         if (checkProducts.length !== productIds.length) {
             return res.status(400).json({ status: 400, message: 'Produk tidak ditemukan' })
@@ -239,7 +238,7 @@ const trackOrder = async (req, res) => {
     }
 }
 
-const deleteOrder = async (req, res) => {
+const cancelOrder = async (req, res) => {
     const { id } = req.params
     try {
         const check = await prisma.order.findUnique({
@@ -255,7 +254,7 @@ const deleteOrder = async (req, res) => {
                 id
             },
             data: {
-                isDeleted: true,                
+                cancelledAt: new Date()
             }
         })
         return res.status(200).json({ status: 200, message: 'Berhasil membatalkan pesanan!', data: order })
@@ -268,7 +267,7 @@ const deleteOrder = async (req, res) => {
 router.get("/", verification(["Admin", "Employee"]), getAllOrders)
 router.get("/:id", verification(["Admin", "Employee"]), getOrder)
 router.post("/", verification(["Admin", "Employee"]), createOrder)
-router.delete("/:id", verification(["Admin", "Employee"]), deleteOrder)
+router.post("/:id/cancel", verification(["Admin", "Employee"]), cancelOrder)
 router.post("/:id/track", verification(["Admin", "Employee"]), trackOrder)
 
 export default router

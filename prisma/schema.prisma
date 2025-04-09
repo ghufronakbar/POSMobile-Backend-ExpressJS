@@ -71,6 +71,7 @@ model Order {
   note           String?   @db.Text()
   startedAt      DateTime?
   finishedAt     DateTime?
+  cancelledAt    DateTime?
 
   partnerId String
   partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)

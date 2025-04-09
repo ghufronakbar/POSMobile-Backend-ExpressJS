@@ -24,6 +24,9 @@ const overview = async (req, res) => {
                         },
                         {
                             startedAt: null
+                        },
+                        {
+                            cancelledAt: null
                         }
                     ]
                 }
